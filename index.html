@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroTech Calc: Fermentation Kinetics & Derivative Analyzer</title>
+    <!-- Tailwind CSS for sleek modern layouts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for beautiful interactive animations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for agro-biotech theme icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for modern aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Top Premium Navigation/Header -->
+    <header class="bg-emerald-900 text-white shadow-md border-b border-emerald-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600 p-2.5 rounded-xl shadow-inner flex items-center justify-center">
+                    <i class="fa-solid fa-flask-vial text-xl text-emerald-100"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight">AgroTech Calc v1.2</h1>
+                    <p class="text-xs text-emerald-200">Kinetics & Derivative Analyzer • Agro Product Technology (SFP)</p>
+                </div>
+            </div>
+            <!-- Student/Academic Context Badge -->
+            <div class="flex items-center gap-2 bg-emerald-950/60 px-4 py-2 rounded-lg border border-emerald-700/50">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span class="text-xs font-semibold text-emerald-100">Malaysia Bioprocess Coursework Simulator</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome banner with bioscience problem statement -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 transition-all hover:shadow-md">
+            <div class="flex flex-col lg:flex-row gap-6 justify-between items-start">
+                <div class="space-y-3 max-w-4xl">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-info"></i> Industrial Scenario Case Study
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">
+                        Valorizing Sarawak Cultivar (Ananas comosus) Pineapple Waste in Johor, Malaysia
+                    </h2>
+                    <p class="text-slate-600 leading-relaxed text-sm">
+                        Malaysia generates over 250,000 metric tons of agricultural pineapple waste annually, particularly from the processing and canning hubs in Johor and Selangor. This interactive calculator simulates the bioconversion of liquid pineapple peel hydrolysate into single-cell protein or bio-ethanol by cultivating the yeast strain <strong>Saccharomyces cerevisiae</strong> in a stirred-tank batch bioreactor. 
+                    </p>
+                    <p class="text-slate-600 leading-relaxed text-sm">
+                        As an <strong>Agro Product Technology</strong> engineer, you cannot simply measure average growth; you must utilize the <strong>first derivative f'(t)</strong> (instantaneous growth rate) to pinpoint exactly when metabolic heat peaks, when dissolved oxygen is consumed fastest, and the optimal timestamp to stop fermentation to maximize efficiency and minimize utility costs.
+                    </p>
+                </div>
+                <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 w-full lg:max-w-xs self-stretch flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-amber-950 text-xs tracking-wider uppercase mb-1">Key Learning Objective</h4>
+                        <p class="text-xs text-amber-900 leading-normal">
+                            Understand how a logistic growth function's mathematical derivative represents physical biological phenomena (biomass output rate in grams per liter per hour).
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-amber-200/50 mt-3 flex justify-between text-[11px] text-amber-800">
+                        <span>Domain: <strong>Calculus II</strong></span>
+                        <span>Major: <strong>Agro Product Tech</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2-Column Responsive Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Controls & Equations (Grid-span 5) -->
+            <div class="lg:col-span-5 space-y-8">
+                
+                <!-- Parameter Sliders Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center gap-2 pb-4 mb-6 border-b border-slate-100">
+                        <i class="fa-solid fa-sliders text-emerald-600"></i>
+                        <h3 class="font-bold text-slate-950">Bioreactor Kinetic Settings</h3>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Slider 1: Carrying Capacity (X_max) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <label class="font-semibold text-slate-700 flex items-center gap-1.5">
+                                    Max Biomass Capacity (X<sub>max</sub>)
+                                    <span class="text-xs text-slate-400 font-normal hover:text-slate-600 cursor-help" title="The maximum yeast biomass concentration achievable when pineapple nutrients are depleted.">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </span>
+                                </label>
+                                <span class="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold text-xs" id="val_Xmax">20.0 g/L</span>
+                            </div>
+                            <input type="range" id="param_Xmax" min="10" max="30" step="0.5" value="20" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                                <span>10.0 g/L</span>
+                                <span>Johor Agro-waste Standard (15 - 25 g/L)</span>
+                                <span>30.0 g/L</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 2: Inoculum size (X_0) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <label class="font-semibold text-slate-700 flex items-center gap-1.5">
+                                    Initial Yeast Inoculum (X<sub>0</sub>)
+                                    <span class="text-xs text-slate-400 font-normal hover:text-slate-600 cursor-help" title="The starting concentration of Saccharomyces cerevisiae loaded into the pineapple waste medium.">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </span>
+                                </label>
+                                <span class="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold text-xs" id="val_X0">1.0 g/L</span>
+                            </div>
+                            <input type="range" id="param_X0" min="0.2" max="5.0" step="0.1" value="1.0" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                                <span>0.2 g/L</span>
+                                <span>Low Starter Yeast</span>
+                                <span>5.0 g/L</span>
+                            </div>
+                        </div>
+
+                        <!-- Slider 3: Max Growth Rate (mu) -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <label class="font-semibold text-slate-700 flex items-center gap-1.5">
+                                    Max Specific Growth Rate (&mu;<sub>max</sub>)
+                                    <span class="text-xs text-slate-400 font-normal hover:text-slate-600 cursor-help" title="Determines how aggressively the yeast replicates under optimal temperature (30°C) on pineapple sugars.">
+                                        <i class="fa-regular fa-circle-question"></i>
+                                    </span>
+                                </label>
+                                <span class="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold text-xs" id="val_mu">0.35 h⁻¹</span>
+                            </div>
+                            <input type="range" id="param_mu" min="0.15" max="0.60" step="0.01" value="0.35" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                                <span>0.15 h⁻¹ (Slow)</span>
+                                <span>S. cerevisiae average</span>
+                                <span>0.60 h⁻¹ (Aggressive)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mathematical Models Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                    <div class="flex items-center gap-2 pb-4 border-b border-slate-100">
+                        <i class="fa-solid fa-calculator text-emerald-600"></i>
+                        <h3 class="font-bold text-slate-950">Dynamic Calculus Models</h3>
+                    </div>
+
+                    <!-- Function Display -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600">Model Function</span>
+                            <span>Yeast Biomass Concentration f(t)</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-x-auto">
+                            <!-- Clean CSS layout of equations to make them incredibly crisp, accessible, and fast-loading -->
+                            <div class="flex items-center gap-2 text-slate-800 font-mono text-sm sm:text-base whitespace-nowrap">
+                                <span class="font-bold text-emerald-700">f(t)</span>
+                                <span>=</span>
+                                <div class="flex flex-col items-center justify-center px-1">
+                                    <span class="border-b border-slate-400 pb-0.5 text-center px-2" id="eqn_f_numerator">X<sub>max</sub></span>
+                                    <span class="pt-0.5 text-center px-2" id="eqn_f_denominator">1 + A · e<sup>-&mu;<sub>max</sub>·t</sup></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Derivative Formula Display -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <span class="bg-amber-50 px-2 py-0.5 rounded text-amber-700">First Derivative</span>
+                            <span>Growth Rate f'(t)</span>
+                        </div>
+                        <div class="bg-amber-50/40 p-4 rounded-xl border border-amber-200/60 overflow-x-auto">
+                            <div class="flex items-center gap-2 text-slate-800 font-mono text-sm sm:text-base whitespace-nowrap">
+                                <span class="font-bold text-amber-700">f'(t)</span>
+                                <span>=</span>
+                                <div class="flex flex-col items-center justify-center px-1">
+                                    <span class="border-b border-amber-400 pb-0.5 text-center px-2" id="eqn_df_numerator">X<sub>max</sub> · A · &mu;<sub>max</sub> · e<sup>-&mu;<sub>max</sub>·t</sup></span>
+                                    <span class="pt-0.5 text-center px-2" id="eqn_df_denominator">(1 + A · e<sup>-&mu;<sub>max</sub>·t</sup>)<sup>2</sup></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Constant calculations -->
+                    <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-500 space-y-1.5 font-mono">
+                        <div class="font-semibold text-slate-700 border-b border-slate-200 pb-1 mb-1">State Variable Constants:</div>
+                        <div class="flex justify-between">
+                            <span>A = (X<sub>max</sub> - X<sub>0</sub>) / X<sub>0</sub>:</span>
+                            <span class="font-bold text-slate-800" id="calc_A">19.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Inflection point (Peak Rate):</span>
+                            <span class="font-bold text-emerald-700" id="calc_inflection">8.41 hours</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Interactive Graph & Layman Engine (Grid-span 7) -->
+            <div class="lg:col-span-7 space-y-8">
+                
+                <!-- Main Plot Visualizer -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-emerald-600 text-lg"></i>
+                            <div>
+                                <h3 class="font-bold text-slate-950">Dynamic Bioprocess Trajectory</h3>
+                                <p class="text-xs text-slate-400">Click graph directly or use slider to calculate tangent slope</p>
+                            </div>
+                        </div>
+                        <!-- Legend indicators -->
+                        <div class="flex gap-3 text-xs font-semibold">
+                            <span class="inline-flex items-center gap-1.5 text-emerald-600">
+                                <span class="w-3 h-0.5 bg-emerald-600 inline-block"></span> Yeast f(t)
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 text-amber-500">
+                                <span class="w-3 h-0.5 bg-amber-500 border-dashed inline-block"></span> Rate f'(t)
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 text-sky-500">
+                                <span class="w-3 h-0.5 bg-sky-500 inline-block"></span> Tangent Line
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="relative w-full h-[320px] md:h-[380px] bg-slate-50 rounded-xl p-2 border border-slate-100 mb-6">
+                        <canvas id="kineticsChart"></canvas>
+                    </div>
+
+                    <!-- Precision Time Selector -->
+                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-regular fa-clock text-slate-500"></i>
+                                Evaluation Time (t)
+                            </span>
+                            <div class="flex items-center gap-1">
+                                <span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono font-bold text-xs" id="val_selected_t">8.4 hours</span>
+                            </div>
+                        </div>
+                        <input type="range" id="param_time_selector" min="0" max="24" step="0.1" value="8.4" class="w-full accent-emerald-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                            <span>0.0h (Inoculation)</span>
+                            <span>12.0h (Mid Fermentation)</span>
+                            <span>24.0h (Completion)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layman Translation Engine Output Card -->
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-emerald-500/20 p-6 relative overflow-hidden transition-all hover:shadow-md">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 -z-10 opacity-60"></div>
+                    
+                    <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
+                        <i class="fa-solid fa-language text-emerald-600 text-lg"></i>
+                        <div>
+                            <h3 class="font-bold text-slate-950">Calculus-to-Industrial Layman Translator</h3>
+                            <p class="text-xs text-slate-400">Biological context translation of math values</p>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Live Readout Panel -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        
+                        <!-- Metric 1: Value of f(t) -->
+                        <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                Current Biomass f(t)
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-2xl font-extrabold text-slate-900 font-mono" id="out_ft">10.00</span>
+                                <span class="text-xs text-slate-500 font-semibold">g/L</span>
+                            </div>
+                            <div class="text-[10px] text-emerald-700 font-semibold mt-1">
+                                Total yeast concentration
+                            </div>
+                        </div>
+
+                        <!-- Metric 2: Value of f'(t) -->
+                        <div class="bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/50">
+                            <div class="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-1">
+                                Growth Rate f'(t)
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-2xl font-extrabold text-amber-800 font-mono" id="out_dft">1.75</span>
+                                <span class="text-xs text-amber-600 font-semibold">g/L/h</span>
+                            </div>
+                            <div class="text-[10px] text-amber-700 font-semibold mt-1">
+                                Derivative (Slope of tangent)
+                            </div>
+                        </div>
+
+                        <!-- Metric 3: Biological phase descriptor -->
+                        <div class="bg-emerald-900 text-emerald-50 p-3.5 rounded-xl shadow-inner">
+                            <div class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                                Growth Phase
+                            </div>
+                            <div class="text-base font-extrabold leading-tight" id="out_phase">
+                                Mid-Log / Inflection Point
+                            </div>
+                            <div class="text-[10px] text-emerald-200 mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-microscope text-[9px]"></i> Cell kinetics profile
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Contextual Explanations -->
+                    <div class="space-y-4">
+                        
+                        <!-- Layman Translation Box -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-2">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-user-tie text-emerald-600"></i> Layman / Production Manager Translation
+                            </h4>
+                            <p class="text-sm text-slate-700 leading-relaxed font-medium" id="txt_layman">
+                                Loading simulation translation...
+                            </p>
+                        </div>
+
+                        <!-- Bioprocess Technology Engineering Directive -->
+                        <div class="bg-emerald-50/40 p-4 rounded-xl border border-emerald-100/80 space-y-2">
+                            <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-gears text-emerald-600"></i> Agro-Industrial Process Directive
+                            </h4>
+                            <p class="text-sm text-emerald-900 leading-relaxed" id="txt_directive">
+                                Loading directive...
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Malaysian Agro-industrial references & standard data validation -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-8">
+            <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
+                <i class="fa-solid fa-graduation-cap text-slate-500"></i>
+                <h3 class="font-bold text-slate-900 text-sm">Industrial Data Validation & Course Reference Indexes</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-500 leading-normal">
+                <div class="space-y-2 border-r border-slate-100 pr-4 last:border-0">
+                    <div class="font-semibold text-slate-700 uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open text-emerald-600"></i> Reference Source 1
+                    </div>
+                    <p class="font-mono text-slate-600">
+                        <strong>Journal of Tropical Agriculture and Food Science (MARDI)</strong>
+                    </p>
+                    <p>
+                        "Characterization and organic-acid composition of liquid waste streams generated from Johor-based pineapple processing centers (Smooth Cayenne & Sarawak Cultivars)."
+                    </p>
+                </div>
+                <div class="space-y-2 border-r border-slate-100 pr-4 last:border-0">
+                    <div class="font-semibold text-slate-700 uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-building-columns text-emerald-600"></i> Reference Source 2
+                    </div>
+                    <p class="font-mono text-slate-600">
+                        <strong>Malaysian Journal of Microbiology (MJM)</strong>
+                    </p>
+                    <p>
+                        "Kinetic modeling and mathematical simulation of Saccharomyces cerevisiae fermentation parameters on carbon-rich fruit waste extracts."
+                    </p>
+                </div>
+                <div class="space-y-2">
+                    <div class="font-semibold text-slate-700 uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-leaf text-emerald-600"></i> Malaysian Agency Data
+                    </div>
+                    <p class="font-mono text-slate-600">
+                        <strong>Malaysian Pineapple Industry Board (MPIB)</strong>
+                    </p>
+                    <p>
+                        State-level reports highlighting Johor's 65% contribution to Malaysia's pineapple waste biomass, driving zero-waste circular bioeconomy research.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <div>
+                <p class="font-bold text-slate-200">Agro Product Technology (SFP) Courseware</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Designed to bridge mathematical derivatives and agricultural biotechnology engineering.</p>
+            </div>
+            <div>
+                <p>&copy; 2026 Malaysia Bioprocess Engineering & Education Initiative. Built with Chart.js & Tailwind.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- MATHEMATICAL STATE VARIABLES ---
+        let X_max = 20.0;    // carrying capacity (g/L)
+        let X_0 = 1.0;       // inoculum size (g/L)
+        let mu_max = 0.35;   // specific growth rate (h^-1)
+        let selectedT = 8.4; // default evaluated time step (h)
+        const duration = 24; // simulation duration in hours
+        const step = 0.1;    // resolution of curves
+
+        // Global Chart variable to manage redraws
+        let kineticChartInstance = null;
+
+        /**
+         * Logistic Growth Model function f(t) representing biomass concentration.
+         * Formula: f(t) = X_max / (1 + A * e^(-mu_max * t))
+         */
+        function f(t, X_0, X_max, mu_max) {
+            const A = (X_max - X_0) / X_0;
+            return X_max / (1 + A * Math.exp(-mu_max * t));
+        }
+
+        /**
+         * First derivative of logistic growth f'(t) representing instantaneous growth rate.
+         * Formula: f'(t) = (X_max * A * mu_max * e^(-mu_max * t)) / (1 + A * e^(-mu_max * t))^2
+         */
+        function df(t, X_0, X_max, mu_max) {
+            const A = (X_max - X_0) / X_0;
+            const expTerm = Math.exp(-mu_max * t);
+            const numerator = X_max * A * mu_max * expTerm;
+            const denominator = Math.pow(1 + A * expTerm, 2);
+            return numerator / denominator;
+        }
+
+        /**
+         * Calculates dynamic points to draw a short tangent line at t_sel
+         * passing through (t_sel, f(t_sel)) with slope = df(t_sel).
+         */
+        function generateTangentDataset(t_sel, X_0, X_max, mu_max) {
+            const points = [];
+            const y_sel = f(t_sel, X_0, X_max, mu_max);
+            const slope = df(t_sel, X_0, X_max, mu_max);
+            
+            // Constrain tangent display width to +/- 3 hours for aesthetic cleanliness
+            const range = 3.0;
+            const start = Math.max(0, t_sel - range);
+            const end = Math.min(duration, t_sel + range);
+            
+            // Generate a set of points mapping the tangent equation: y = slope * (t - t_sel) + y_sel
+            for (let t = start; t <= end; t += 0.2) {
+                const y = slope * (t - t_sel) + y_sel;
+                // Clip tangent values to reasonable visual levels
+                if (y >= 0 && y <= X_max * 1.2) {
+                    points.push({ x: Number(t.toFixed(2)), y: Number(y.toFixed(4)) });
+                }
+            }
+            return points;
+        }
+
+        function buildChart() {
+            const ctx = document.getElementById('kineticsChart').getContext('2d');
+            
+            // 1. Generate core raw data arrays for f(t) and f'(t)
+            const data_f = [];
+            const data_df = [];
+            for (let t = 0; t <= duration; t = Number((t + step).toFixed(2))) {
+                data_f.push({ x: t, y: Number(f(t, X_0, X_max, mu_max).toFixed(4)) });
+                data_df.push({ x: t, y: Number(df(t, X_0, X_max, mu_max).toFixed(4)) });
+            }
+
+            // 2. Generate initial selected tangent line data
+            const tangentData = generateTangentDataset(selectedT, X_0, X_max, mu_max);
+
+            // 3. Setup datasets array
+            const datasets = [
+                {
+                    label: "Biomass Concentration f(t) [g/L]",
+                    data: data_f,
+                    borderColor: '#059669', // Emerald 600
+                    backgroundColor: 'rgba(5, 150, 105, 0.05)',
+                    borderWidth: 3.5,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y_left'
+                },
+                {
+                    label: "Growth Rate f'(t) [g/L/h]",
+                    data: data_df,
+                    borderColor: '#f59e0b', // Amber 500
+                    borderWidth: 2,
+                    borderDash: [5, 4],
+                    pointRadius: 0,
+                    tension: 0.1,
+                    yAxisID: 'y_right'
+                },
+                {
+                    label: "Local Tangent (Derivative Slope)",
+                    data: tangentData,
+                    borderColor: '#0ea5e9', // Sky 500
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    yAxisID: 'y_left'
+                }
+            ];
+
+            // 4. Destroy existing chart instance to prevent memory leak / multiple redraw overlay bugs
+            if (kineticChartInstance) {
+                kineticChartInstance.destroy();
+            }
+
+            // 5. Instantiation of the Chart.js model
+            kineticChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // We show a styled custom HTML legend above instead
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(2);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: 0,
+                            max: duration,
+                            title: {
+                                display: true,
+                                text: 'Fermentation Time (hours)',
+                                color: '#475569',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                stepSize: 2
+                            }
+                        },
+                        y_left: {
+                            type: 'linear',
+                            position: 'left',
+                            min: 0,
+                            max: Math.ceil(X_max * 1.1),
+                            title: {
+                                display: true,
+                                text: 'Yeast Biomass, f(t) (g / L)',
+                                color: '#059669',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: true,
+                                color: '#f1f5f9'
+                            }
+                        },
+                        y_right: {
+                            type: 'linear',
+                            position: 'right',
+                            min: 0,
+                            // Set dynamic maximum scaled to growth rate
+                            max: Number((df(selectedT, X_0, X_max, mu_max) * 4).toFixed(1)) < 2 ? 2.5 : Number((X_max * mu_max * 0.3).toFixed(1)),
+                            title: {
+                                display: true,
+                                text: 'Growth Rate, f\'(t) (g / L / h)',
+                                color: '#f59e0b',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false // Prevents cluttered double gridlines
+                            }
+                        }
+                    },
+                    // Enable click tracking directly onto any coordinate on the chart
+                    onClick: function(e, elements) {
+                        const chartArea = kineticChartInstance.chartArea;
+                        // Use helper method to convert click pixels to values
+                        const xValue = kineticChartInstance.scales.x.getValueForPixel(e.x);
+                        if (xValue >= 0 && xValue <= duration) {
+                            selectedT = Number(xValue.toFixed(1));
+                            // Update input slider position physically
+                            document.getElementById('param_time_selector').value = selectedT;
+                            updateDashboard();
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Inspects selected point (t) to dynamically write industrial & calculus explanations.
+         */
+        function updateExplainerContent(t, biomass, rate) {
+            let phaseName = "";
+            let laymanText = "";
+            let directiveText = "";
+            
+            // Dynamic Inflection threshold
+            const A_const = (X_max - X_0) / X_0;
+            const inflectionT = Math.log(A_const) / mu_max;
+
+            if (t <= 2.5) {
+                phaseName = "Lag / Adaptation Phase";
+                laymanText = `At the initial ${t} hours, yeast cells are adapting to the raw Sarawak cultivar pineapple peel hydrolysate. They are synthesizing metabolic enzymes to break down sucrose, glucose, and fructose into digestible units. Since the cell count is low, the rate of biomass accumulation is virtually stagnant at f'(${t}) = ${rate.toFixed(3)} g/L/h.`;
+                directiveText = `<strong>Engineering Directive:</strong> Keep aeration low during adaptation to minimize shear stress on inoculum cells. Do not feed nitrogen spikes yet; the cellular metabolic machineries are currently shifting configurations, and excess minerals can shock the cells.`;
+            } else if (t > 2.5 && t <= (inflectionT - 1.5)) {
+                phaseName = "Acceleration / Early Log Phase";
+                laymanText = `At ${t} hours, cells have fully activated their glycolytic pathways. The growth acceleration is shifting into positive gear. The slope of the tangent line is curving sharply upward, indicating that biomass production is speeding up. For every hour that passes, you are gaining ${rate.toFixed(2)} grams of cell mass per liter of fermenting juice.`;
+                directiveText = `<strong>Engineering Directive:</strong> Initiate medium agitation (e.g., 200 rpm in your bioreactor) to prevent local nutrient dead-zones. Metabolic temperature is beginning to climb; monitor cooling jacket water flow to maintain steady 30°C cultivation temperature.`;
+            } else if (t > (inflectionT - 1.5) && t <= (inflectionT + 1.5)) {
+                phaseName = "Mid-Log / Inflection Point";
+                laymanText = `This is the **Inflection Point** at ${t} hours, where the yeast biomass reaches exactly half its carrying capacity (f(${t}) = ${biomass.toFixed(2)} g/L). At this point, the derivative f'(t) climbs to its absolute maximum of ${rate.toFixed(2)} g/L/h. This is the steepest slope on your graph; the population is dividing at its absolute physical speed limit!`;
+                directiveText = `<strong>Engineering Directive:</strong> CRITICAL PHASE! Dissolved oxygen (DO) demand is at its peak. Turn on oxygen sparging at maximum rate to avoid oxygen deprivation. The cooling system must work at its peak performance to dissipate the immense biological heat produced by rapid sugar conversion.`;
+            } else if (t > (inflectionT + 1.5) && t <= 18.0) {
+                phaseName = "Deceleration / Late Log Phase";
+                laymanText = `By ${t} hours, the yeast growth starts decelerating. Although biomass is still increasing, the derivative f'(t) has dropped to ${rate.toFixed(2)} g/L/h. The curve is now concave down. This occurs because the fermentable sugars extracted from the pineapple peel are starting to deplete, and ethanol by-product is beginning to mildly inhibit cells.`;
+                directiveText = `<strong>Engineering Directive:</strong> Agitation speeds can be dialed down slightly to minimize mechanical power consumption. If conducting fed-batch fermentation, this is the optimal operational window to feed fresh concentrated pineapple syrup to prolong production.`;
+            } else {
+                phaseName = "Stationary / Harvesting Phase";
+                laymanText = `By ${t} hours, your fermentation has entered steady-state stationary equilibrium. Sugars are exhausted, and biomass is steady at ${biomass.toFixed(2)} g/L (near-maximum capacity). The first derivative f'(${t}) drops to a mere ${rate.toFixed(3)} g/L/h—indicating no further net cell generation. The tangent line is almost horizontal.`;
+                directiveText = `<strong>Engineering Directive:</strong> Stop the bioreactor cycle! Continuing cultivation wastes fuel, risks auto-lysis (cell death/decay), and invites contamination. Initiate downstream centrifuge separation immediately to harvest yeast biomass (for protein) or distill the fermented broth to extract bio-ethanol.`;
+            }
+
+            // Update DOM text elements safely
+            document.getElementById('out_phase').innerHTML = phaseName;
+            document.getElementById('txt_layman').innerHTML = laymanText;
+            document.getElementById('txt_directive').innerHTML = directiveText;
+        }
+
+        /**
+         * Re-evaluates calculus state, recalculates values, and triggers UI updates.
+         */
+        function updateDashboard() {
+            // Read slider values
+            X_max = parseFloat(document.getElementById('param_Xmax').value);
+            X_0 = parseFloat(document.getElementById('param_X0').value);
+            mu_max = parseFloat(document.getElementById('param_mu').value);
+            selectedT = parseFloat(document.getElementById('param_time_selector').value);
+
+            // Calculate state dependent variables
+            const A_val = (X_max - X_0) / X_0;
+            const inflection_T = Math.log(A_val) / mu_max;
+            
+            // Calculate outputs for currently selected evaluation hour
+            const ft_val = f(selectedT, X_0, X_max, mu_max);
+            const dft_val = df(selectedT, X_0, X_max, mu_max);
+
+            // Update raw values displaying in sliders & summaries
+            document.getElementById('val_Xmax').innerText = `${X_max.toFixed(1)} g/L`;
+            document.getElementById('val_X0').innerText = `${X_0.toFixed(1)} g/L`;
+            document.getElementById('val_mu').innerText = `${mu_max.toFixed(2)} h⁻¹`;
+            document.getElementById('val_selected_t').innerText = `${selectedT.toFixed(1)} hours`;
+
+            // Update constants box
+            document.getElementById('calc_A').innerText = A_val.toFixed(2);
+            document.getElementById('calc_inflection').innerText = `${inflection_T.toFixed(2)} hours`;
+
+            // Update dynamic math equations to reflect live slider variables
+            document.getElementById('eqn_f_numerator').innerHTML = `${X_max.toFixed(1)}`;
+            document.getElementById('eqn_f_denominator').innerHTML = `1 + ${A_val.toFixed(2)} · e<sup>-${mu_max.toFixed(2)}·t</sup>`;
+            document.getElementById('eqn_df_numerator').innerHTML = `${X_max.toFixed(1)} · ${A_val.toFixed(2)} · ${mu_max.toFixed(2)} · e<sup>-${mu_max.toFixed(2)}·t</sup>`;
+            document.getElementById('eqn_df_denominator').innerHTML = `(1 + ${A_val.toFixed(2)} · e<sup>-${mu_max.toFixed(2)}·t</sup>)<sup>2</sup>`;
+
+            // Update specific point evaluation text boxes
+            document.getElementById('out_ft').innerText = ft_val.toFixed(2);
+            document.getElementById('out_dft').innerText = dft_val.toFixed(3);
+
+            // Refresh dynamic explanatory statements based on biological phase
+            updateExplainerContent(selectedT, ft_val, dft_val);
+
+            // Reconstruct and animate Chart.js plot
+            buildChart();
+        }
+
+        // Wire event listeners to sliders so changes update visual calculations instantly
+        document.getElementById('param_Xmax').addEventListener('input', updateDashboard);
+        document.getElementById('param_X0').addEventListener('input', updateDashboard);
+        document.getElementById('param_mu').addEventListener('input', updateDashboard);
+        document.getElementById('param_time_selector').addEventListener('input', updateDashboard);
+
+        // Run initial calculations on page render
+        window.onload = function() {
+            updateDashboard();
+        }
+    </script>
+</body>
+</html>
